@@ -44,7 +44,7 @@ def send_day_weather_to_user(userid, cityid):
 
 
 # do method everyday at 7:00
-schedule.every().day.at("23:48").do(msg)
+schedule.every().day.at("07:00").do(msg)
 while True:
     schedule.run_pending()
     time.sleep(10)

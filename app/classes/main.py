@@ -5,7 +5,6 @@ from pyowm import OWM
 import mysql.connector
 import subprocess
 from methods import methods
-from pyowm import timeutils
 
 # run the timer for everyday weather
 command = ['python.exe', 'schedule_timer.py']
