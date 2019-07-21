@@ -4,6 +4,7 @@ import datetime
 from pyowm import OWM
 import mysql.connector
 import subprocess
+from app.resources.methods import methods
 
 
 # run the timer for everyday weather
@@ -85,16 +86,16 @@ def city(message):
 # command to find current weather in user's city
 @bot.message_handler(commands=['now'])
 def handle_now(message):
-    usercityid = get_city_id(message.chat.id, mydb)
+    usercityid = methods.get_city_id(message.chat.id, mydb)
     data = owm.weather_at_id(int(usercityid))
     w = data.get_weather()
-    mess = "Now weather: " + get_weather_from_owm(w)
+    mess = "Now weather: " + methods.get_weather_from_owm(w)
     bot.send_message(message.chat.id, mess)
 
 
 @bot.message_handler(commands=['help'])
 def handle_help(message):
-    bot.send_message(message.chat.id, get_help_text())
+    bot.send_message(message.chat.id, methods.get_help_text())
 
 
 @bot.message_handler(commands=['nowat'])
@@ -107,26 +108,26 @@ def handle_nowat(message):
     else:
         data = owm.weather_at_place(cityname)
         w = data.get_weather()
-        mess = "Todays weather in " + cityname.upper() + " " + get_weather_from_owm(w)
+        mess = "Todays weather in " + cityname.upper() + " " + methods.get_weather_from_owm(w)
         bot.send_message(message.chat.id, mess)
 
 
 @bot.message_handler(commands=['tomorrow'])
 def handle_tomorrow(message):
-    cityid = get_city_id(message.chat.id, mydb)
+    cityid = methods.get_city_id(message.chat.id, mydb)
     r = requests.get('http://api.openweathermap.org/data/2.5/forecast?id={}&type=like&APPID={}'.format(cityid, APPID))
     data = r.json()['list']
     today = datetime.date.today() + datetime.timedelta(days=1)
     mess = "Weather for tomorrow (" + str(today.day) + "." + str(today.month) + "): \n" + str(
-        get_day_weather(2, data))
+        methods.get_day_weather(2, data))
     bot.send_message(message.chat.id, mess)
 
 
 @bot.message_handler(commands=['today'])
 def handle_tomorrow(message):
-    cityid = get_city_id(message.chat.id, mydb)
+    cityid = methods.get_city_id(message.chat.id, mydb)
     r = requests.get('http://api.openweathermap.org/data/2.5/forecast?id={}&type=like&APPID={}'.format(cityid, APPID))
-    mess = "Todays weather: \n" + str(get_day_weather(1, r.json()['list']))
+    mess = "Todays weather: \n" + str(methods.get_day_weather(1, r.json()['list']))
     bot.send_message(message.chat.id, mess)
 
 
@@ -166,7 +167,7 @@ def handle_wtime(message):
 
 @bot.message_handler(content_types=['text'])
 def send_text(message):
-    cityid = get_city_id(message.chat.id, mydb)
+    cityid = methods.get_city_id(message.chat.id, mydb)
     r = requests.get(
         'http://api.openweathermap.org/data/2.5/forecast?id={}&type=like&APPID={}'.format(cityid, APPID))
     data = r.json()['list']
@@ -192,23 +193,23 @@ def send_text(message):
         time_mess_array.append(res)
 
     if message.text.lower() == t1:
-        mess = "The weather at " + t1 + ": \n" + get_day_weather(1, data)
+        mess = "The weather at " + t1 + ": \n" + methods.get_day_weather(1, data)
         bot.send_message(message.chat.id, mess)
         return
     elif message.text.lower() == t2:
-        mess = "The weather at " + t2 + ": \n" + get_day_weather(2, data)
+        mess = "The weather at " + t2 + ": \n" + methods.get_day_weather(2, data)
         bot.send_message(message.chat.id, mess)
         return
     elif message.text.lower() == t3:
-        mess = "The weather at " + t3 + ": \n" + get_day_weather(3, data)
+        mess = "The weather at " + t3 + ": \n" + methods.get_day_weather(3, data)
         bot.send_message(message.chat.id, mess)
         return
     elif message.text.lower() == t4:
-        mess = "The weather at " + t4 + ": \n" + get_day_weather(4, data)
+        mess = "The weather at " + t4 + ": \n" + methods.get_day_weather(4, data)
         bot.send_message(message.chat.id, mess)
         return
     elif message.text.lower() == t5:
-        mess = "The weather at " + t5 + ": \n" + get_day_weather(5, data)
+        mess = "The weather at " + t5 + ": \n" + methods.get_day_weather(5, data)
         bot.send_message(message.chat.id, mess)
         return
     query = message.text.lower()
@@ -234,7 +235,7 @@ def send_text(message):
 
 
 def send_weather_at_time(message):
-    cityid = get_city_id(message.chat.id, mydb)
+    cityid = methods.get_city_id(message.chat.id, mydb)
     r = requests.get(
         'http://api.openweathermap.org/data/2.5/forecast?id={}&type=like&APPID={}'.format(cityid, APPID))
     data = r.json()['list']
@@ -247,106 +248,13 @@ def send_weather_at_time(message):
         data = data[day * 8 - 8 + now_hour + int(round((24 / int(message.text[0:2]))))]
     result = "The weather " + message.text[0:13] + " (" + message.text[17:24] + "): \n"
     result += "{} {} ({})\n🌡 {}° {} {}m/s \nPresure: {}mm".format(data['weather'][0]['main'],
-                                                                   get_weather_icon(data['weather'][0]['icon']),
+                                                                   methods.get_weather_icon(data['weather'][0]['icon']),
                                                                    data['weather'][0]['description'],
                                                                    int(round(data['main']['temp'] - 273, 15)),
-                                                                   get_wind_smiley(data['wind']['deg']),
+                                                                   methods.get_wind_smiley(data['wind']['deg']),
                                                                    data['wind']['speed'],
                                                                    int(round(data['main']['pressure'] * 0.75)))
     bot.send_message(message.chat.id, result)
 
 
 bot.polling(none_stop=True, interval=0)
-
-def get_weather_icon(icon):
-    if icon == '01d' or icon == '01n': return '☀';
-    if icon == '02d' or icon == '02n': return '⛅';
-    if icon == '03d' or icon == '03n': return '☁';
-    if icon == '04d' or icon == '04n': return '💨';
-    if icon == '09d' or icon == '09n': return '🌧';
-    if icon == '10d' or icon == '10n': return '🌦';
-    if icon == '11d' or icon == '11n': return '⛈';
-    if icon == '13d' or icon == '13n': return '❄';
-    if icon == '50d' or icon == '50n': return '🌫';
-
-
-def get_wind_smiley(deg):
-    if deg > 350 or deg < 10: return '➡';
-    if deg > 80 and deg < 100: return '⬆';
-    if deg > 170 and deg < 190: return '⬅';
-    if deg > 260 and deg < 280: return '⬇';
-    if deg > 10 and deg < 80: return '↗';
-    if deg > 100 and deg < 170: return '↖';
-    if deg > 190 and deg < 260: return '↙';
-    if deg > 280 and deg < 350: return '↘';
-
-
-def get_weather_from_owm(w):
-    today = datetime.datetime.now()
-    weather_icon = get_weather_icon(w.get_weather_icon_name())
-    wind_icon = get_wind_smiley(w.get_wind()['deg'])
-    res = "({}.{}): \n{} {} ({})\n🌡 {}° {} {}m/s \nmin: {}° - max: {}° \nPresure: {}mm".format(today.day, today.month,
-                                                                                                w.get_status(),
-                                                                                                weather_icon,
-                                                                                                w.get_detailed_status(),
-                                                                                                int(round(
-                                                                                                    w.get_temperature()[
-                                                                                                        'temp'] - 273,
-                                                                                                    15)),
-                                                                                                wind_icon,
-                                                                                                w.get_wind()['speed'],
-                                                                                                int(round(
-                                                                                                    w.get_temperature()[
-                                                                                                        'temp_min'] - 273,
-                                                                                                    15)),
-                                                                                                int(round(
-                                                                                                    w.get_temperature()[
-                                                                                                        'temp_max'] - 273,
-                                                                                                    15)),
-                                                                                                w.get_pressure()[
-                                                                                                    'press'] * 0.75)
-    return res
-
-
-def get_city_id(userid, mydb):
-    mycursor = mydb.cursor()
-    mycursor.execute("SELECT cityid FROM users WHERE userid = {}".format(userid))
-    myresult = mycursor.fetchall()[0]
-    cityid = str(myresult)[1:(len(str(myresult)) - 2)]
-    return int(cityid)
-
-
-def get_day_weather(day, data):
-    now_hour = int(int(round((24 - datetime.datetime.now().hour) / 3)) + 1)
-    if day == 1:
-        data = data[0:(now_hour + 1)]
-        hour = 24 - now_hour * 3
-    else:
-        data = data[day * 8 - 8 + now_hour:day * 8 + now_hour]
-        hour = 0
-    result = ""
-    for x in data:
-        print([x][0])
-        w = [x][0]
-        if hour < 10: result += '0'
-        result += str(hour) + ":00: {} {} ({})\n     🌡 {}° {} {}m/s \n".format(w['weather'][0]['main'],
-                                                                                get_weather_icon(
-                                                                                    w['weather'][0]['icon']),
-                                                                                w['weather'][0]['description'],
-                                                                                int(round(w['main']['temp'] - 273, 15)),
-                                                                                get_wind_smiley(w['wind']['deg']),
-                                                                                w['wind']['speed'])
-        hour += 3
-    return result
-
-
-def get_help_text():
-    res = "     /changecity - change the default city to have everyday weather in new place \n      " \
-          "/now - to know weather at your default city in this moment \n       " \
-          "/nowat [cityname] - to know weather in this moment in any city \n        " \
-          "/today - to know weather for the rest of day \n     " \
-          "/tomorrow - to know the weather for all day for tomorrow \n     " \
-          "/wday - to know all day weather for next 5 day \n       " \
-          "/wtime - to know the weather anytime for the one of next 5 day \n      " \
-          "/help - to see the list of all command"
-    return res;
