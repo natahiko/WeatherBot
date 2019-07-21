@@ -2,26 +2,26 @@ import datetime
 
 
 def get_weather_icon(icon):
-    if icon == '01d' or icon == '01n': return '☀';
-    if icon == '02d' or icon == '02n': return '⛅';
-    if icon == '03d' or icon == '03n': return '☁';
-    if icon == '04d' or icon == '04n': return '💨';
-    if icon == '09d' or icon == '09n': return '🌧';
-    if icon == '10d' or icon == '10n': return '🌦';
-    if icon == '11d' or icon == '11n': return '⛈';
-    if icon == '13d' or icon == '13n': return '❄';
-    if icon == '50d' or icon == '50n': return '🌫';
+    if icon == '01d' or icon == '01n': return u'\U00002600'
+    if icon == '02d' or icon == '02n': return u'\U000026C5'
+    if icon == '03d' or icon == '03n': return u'\U00002601'
+    if icon == '04d' or icon == '04n': return u'\U0001F32C'
+    if icon == '09d' or icon == '09n': return u'\U0001F327'
+    if icon == '10d' or icon == '10n': return u'\U0001F326'
+    if icon == '11d' or icon == '11n': return u'\U000026C8'
+    if icon == '13d' or icon == '13n': return u'\U00002744'
+    if icon == '50d' or icon == '50n': return u'\U0001F32B'
 
 
 def get_wind_smiley(deg):
-    if deg > 350 or deg < 10: return '➡';
-    if deg > 80 and deg < 100: return '⬆';
-    if deg > 170 and deg < 190: return '⬅';
-    if deg > 260 and deg < 280: return '⬇';
-    if deg > 10 and deg < 80: return '↗';
-    if deg > 100 and deg < 170: return '↖';
-    if deg > 190 and deg < 260: return '↙';
-    if deg > 280 and deg < 350: return '↘';
+    if deg > 350 or deg < 10: return u'\U000027A1'
+    if deg > 80 and deg < 100: return u'\U00002B06'
+    if deg > 170 and deg < 190: return u'\U00002B05'
+    if deg > 260 and deg < 280: return u'\U00002B07'
+    if deg > 10 and deg < 80: return u'\U00002197'
+    if deg > 100 and deg < 170: return u'\U00002196'
+    if deg > 190 and deg < 260: return u'\U00002199'
+    if deg > 280 and deg < 350: return u'\U00002198'
 
 
 # get text of weather in current time
@@ -33,7 +33,7 @@ def get_weather_from_owm(w):
     except:
         print('this city hasnt argument deg')
         wind_icon = '🌬'
-    res = "({}.{}): \n{} {} ({})\n🌡 {}° {} {}m/s \nmin: {}° - max: {}° \nPresure: {}mm".format(today.day, today.month,
+    res = "({}.{}): \n{} {} ({})\nu'\U0001F321' {}° {} {}m/s \nmin: {}° - max: {}° \nPresure: {}mm".format(today.day, today.month,
                                                                                                 w.get_status(),
                                                                                                 weather_icon,
                                                                                                 w.get_detailed_status(),
@@ -78,7 +78,7 @@ def get_day_weather(day, data):
     for x in data:
         w = [x][0]
         if hour < 10: result += '0'
-        result += str(hour) + ":00: {} {} ({})\n     🌡 {}° {} {}m/s \n".format(w['weather'][0]['main'],
+        result += str(hour) + ":00: {} {} ({})\n     u'\U0001F321' {}° {} {}m/s \n".format(w['weather'][0]['main'],
                                                                                 get_weather_icon(
                                                                                     w['weather'][0]['icon']),
                                                                                 w['weather'][0]['description'],
