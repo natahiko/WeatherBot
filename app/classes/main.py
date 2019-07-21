@@ -6,7 +6,6 @@ import mysql.connector
 import subprocess
 from app.resources.methods import methods
 
-
 # run the timer for everyday weather
 command = ['python.exe', 'schedule_timer.py']
 p = subprocess.Popen(command)
@@ -98,6 +97,7 @@ def handle_help(message):
     bot.send_message(message.chat.id, methods.get_help_text())
 
 
+# command to find current weather in any city
 @bot.message_handler(commands=['nowat'])
 def handle_nowat(message):
     cityname = message.text[7:]
@@ -112,6 +112,7 @@ def handle_nowat(message):
         bot.send_message(message.chat.id, mess)
 
 
+# the weather for all day for tomorrow
 @bot.message_handler(commands=['tomorrow'])
 def handle_tomorrow(message):
     cityid = methods.get_city_id(message.chat.id, mydb)
@@ -123,6 +124,7 @@ def handle_tomorrow(message):
     bot.send_message(message.chat.id, mess)
 
 
+# the weather for the rest of current day
 @bot.message_handler(commands=['today'])
 def handle_tomorrow(message):
     cityid = methods.get_city_id(message.chat.id, mydb)
@@ -131,8 +133,10 @@ def handle_tomorrow(message):
     bot.send_message(message.chat.id, mess)
 
 
+# to know weather for the one of next 5 day
 @bot.message_handler(commands=['wday'])
 def handle_wday(message):
+    # create keyboard with datas
     keyboard1 = telebot.types.ReplyKeyboardMarkup(True, True)
     today = datetime.datetime.now()
     t1 = str(today.day) + "." + str(today.month) + "." + str(today.year)
@@ -148,6 +152,7 @@ def handle_wday(message):
     bot.send_message(message.chat.id, "Choose day: ", reply_markup=keyboard1)
 
 
+# mathod to know weather in any time in one of next 5 day
 @bot.message_handler(commands=['wtime'])
 def handle_wtime(message):
     keyboard1 = telebot.types.ReplyKeyboardMarkup(True, True)
@@ -171,6 +176,7 @@ def send_text(message):
     r = requests.get(
         'http://api.openweathermap.org/data/2.5/forecast?id={}&type=like&APPID={}'.format(cityid, APPID))
     data = r.json()['list']
+    # create variables with the next 5 day
     today = datetime.datetime.now()
     t1 = str(today.day) + "." + str(today.month) + "." + str(today.year)
     today = today + datetime.timedelta(days=1)
@@ -181,7 +187,7 @@ def send_text(message):
     t4 = str(today.day) + "." + str(today.month) + "." + str(today.year)
     today = today + datetime.timedelta(days=1)
     t5 = str(today.day) + "." + str(today.month) + "." + str(today.year)
-
+    # create array with different hour
     time_mess_array = []
     for x in range(0, 23, 3):
         if x < 10:
@@ -192,6 +198,7 @@ def send_text(message):
             res = str(x) + ":00 - " + str(x + 3) + ":00 "
         time_mess_array.append(res)
 
+    # chexk for the message from command /wday
     if message.text.lower() == t1:
         mess = "The weather at " + t1 + ": \n" + methods.get_day_weather(1, data)
         bot.send_message(message.chat.id, mess)
@@ -212,6 +219,7 @@ def send_text(message):
         mess = "The weather at " + t5 + ": \n" + methods.get_day_weather(5, data)
         bot.send_message(message.chat.id, mess)
         return
+    # check for the command /wtime
     query = message.text.lower()
     for x in time_mess_array:
         if query.startswith(x):
@@ -219,6 +227,7 @@ def send_text(message):
             if mes == "at " + t1 or mes == "at " + t2 or mes == "at " + t3 or mes == "at " + t4 or mes == "at " + t5:
                 send_weather_at_time(message)
                 return
+    # check if it was day message from command /wtime and make keyboakd for time query
     if query == "at " + t1 or query == "at " + t2 or query == "at " + t3 or query == "at " + t4 or query == "at " + t5:
         keyboard2 = telebot.types.ReplyKeyboardMarkup(True, True)
         if int(message.text[3:5]) == today.day - 4:
@@ -231,9 +240,11 @@ def send_text(message):
         bot.send_message(message.chat.id, "Choose time: ", reply_markup=keyboard2)
         return
 
+    # send stiker to user if he print not command
     bot.send_sticker(message.chat.id, 'CAADAgADPgIAAkcVaAnaG0eZ4kbcKwI')
 
 
+# additional method to make and send text message current weather
 def send_weather_at_time(message):
     cityid = methods.get_city_id(message.chat.id, mydb)
     r = requests.get(

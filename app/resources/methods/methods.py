@@ -24,10 +24,15 @@ def get_wind_smiley(deg):
     if deg > 280 and deg < 350: return '↘';
 
 
+# get text of weather in current time
 def get_weather_from_owm(w):
     today = datetime.datetime.now()
     weather_icon = get_weather_icon(w.get_weather_icon_name())
-    wind_icon = get_wind_smiley(w.get_wind()['deg'])
+    try:
+        wind_icon = get_wind_smiley(w.get_wind()['deg'])
+    except:
+        print('this city hasnt argument deg')
+        wind_icon = '🌬'
     res = "({}.{}): \n{} {} ({})\n🌡 {}° {} {}m/s \nmin: {}° - max: {}° \nPresure: {}mm".format(today.day, today.month,
                                                                                                 w.get_status(),
                                                                                                 weather_icon,
@@ -51,6 +56,7 @@ def get_weather_from_owm(w):
     return res
 
 
+# get cityid by userid from db
 def get_city_id(userid, mydb):
     mycursor = mydb.cursor()
     mycursor.execute("SELECT cityid FROM users WHERE userid = {}".format(userid))
@@ -59,6 +65,7 @@ def get_city_id(userid, mydb):
     return int(cityid)
 
 
+# get message text for all day from hour to hour
 def get_day_weather(day, data):
     now_hour = int(int(round((24 - datetime.datetime.now().hour) / 3)) + 1)
     if day == 1:
@@ -69,7 +76,6 @@ def get_day_weather(day, data):
         hour = 0
     result = ""
     for x in data:
-        print([x][0])
         w = [x][0]
         if hour < 10: result += '0'
         result += str(hour) + ":00: {} {} ({})\n     🌡 {}° {} {}m/s \n".format(w['weather'][0]['main'],
@@ -83,13 +89,14 @@ def get_day_weather(day, data):
     return result
 
 
+# the text of hepl message
 def get_help_text():
-    res = "     /changecity - change the default city to have everyday weather in new place \n      " \
-          "/now - to know weather at your default city in this moment \n       " \
-          "/nowat [cityname] - to know weather in this moment in any city \n        " \
-          "/today - to know weather for the rest of day \n     " \
-          "/tomorrow - to know the weather for all day for tomorrow \n     " \
-          "/wday - to know all day weather for next 5 day \n       " \
-          "/wtime - to know the weather anytime for the one of next 5 day \n      " \
+    res = "/changecity - change the default city to have everyday weather in new place \n" \
+          "/now - to know weather at your default city in this moment \n" \
+          "/nowat [cityname] - to know weather in this moment in any city \n" \
+          "/today - to know weather for the rest of day \n" \
+          "/tomorrow - to know the weather for all day for tomorrow \n" \
+          "/wday - to know all day weather for next 5 day \n" \
+          "/wtime - to know the weather anytime for the one of next 5 day \n" \
           "/help - to see the list of all command"
     return res;
