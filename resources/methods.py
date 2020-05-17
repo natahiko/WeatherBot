@@ -62,9 +62,12 @@ def get_weather_from_owm(w):
 def get_city_id(userid, mydb):
     mycursor = mydb.cursor()
     mycursor.execute("SELECT cityid FROM users WHERE userid = {}".format(userid))
-    myresult = mycursor.fetchall()[0]
-    cityid = str(myresult)[1:(len(str(myresult)) - 2)]
-    return int(cityid)
+    try:
+        myresult = mycursor.fetchall()[0]
+        cityid = str(myresult)[1:(len(str(myresult)) - 2)]
+        return int(cityid)
+    except Exception as e:
+        return 0
 
 
 # get message text for all day from hour to hour

@@ -8,3 +8,6 @@ class DataBase:
 
     def cursor(self):
         return self.pool.cursor()
+
+    def commit(self):
+        return self.pool.commit()
