@@ -1,23 +1,24 @@
 import schedule
 import time
 from pyowm import OWM
-import mysql.connector
 import telebot
+import os
 import requests
-import datetime
-from app.resources.methods import methods
+from resources import *
+from utils import DataBase, ParserConfig
+
+path = os.path.dirname(os.path.abspath(__file__))
+
+# load config with all dispatchers
+config = ParserConfig(os.path.join(path, '../config', 'config.json'))
 
 # create connection and cursor for using in other methods
-mydb = mysql.connector.connect(
-    host="db4free.net",
-    user="natahiko",
-    password="Shusha_2303",
-    database="weather_bot"
-)
+mydb = DataBase(**config['database'])
 
 # create bot and APIID variable
-bot = telebot.TeleBot('711188874:AAErmj7qK8apEoXdyX263XIYjw4vwRvKoqc')
-APPID = 'e03289d4e7fe780d26b085815c6570d3'
+bot = telebot.TeleBot(config['token'])
+APPID = config['APPID']
+
 # create new owm object
 owm = OWM(APPID)
 
@@ -48,4 +49,3 @@ schedule.every().day.at("07:00").do(msg)
 while True:
     schedule.run_pending()
     time.sleep(10)
-

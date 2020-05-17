@@ -4,23 +4,26 @@ import datetime
 from pyowm import OWM
 import mysql.connector
 import subprocess
-from app.resources.methods import methods
+from resources import *
+from utils import DataBase, ParserConfig
+import os
+
+path = os.path.dirname(os.path.abspath(__file__))
+
+# load config with all dispatchers
+config = ParserConfig(os.path.join(path, 'config', 'config.json'))
 
 # run the timer for everyday weather
-command = ['python.exe', 'schedule_timer.py']
+command = ['python.exe', './app/classes/schedule_timer.py']
 p = subprocess.Popen(command)
 
 # create connection and cursor for using in other methods
-mydb = mysql.connector.connect(
-    host="db4free.net",
-    user="natahiko",
-    password="Shusha_2303",
-    database="weather_bot"
-)
+mydb = DataBase(**config['database'])
 
 # create bot and APIID variable
-bot = telebot.TeleBot('711188874:AAErmj7qK8apEoXdyX263XIYjw4vwRvKoqc')
-APPID = 'e03289d4e7fe780d26b085815c6570d3'
+bot = telebot.TeleBot(config['token'])
+APPID = config['APPID']
+
 # create new owm object
 owm = OWM(APPID)
 
